@@ -1,17 +1,17 @@
-image: sannel/sannelhousedevices:beta
+image: sannel/sannelhousegateway:beta
 manifests:
   -
-    image: sannel/sannelhousedevices:1811.21-beta-win
+    image: sannel/sannelhousegateway:1812.02-beta-win
     platform:
       architecture: amd64
       os: windows
   -
-    image: sannel/sannelhousedevices:1811.21-beta-linux-x86
+    image: sannel/sannelhousegateway:1812.02-beta-linux-x86
     platform:
       architecture: amd64
       os: linux
   -
-    image: sannel/sannelhousedevices:1811.21-beta-linux-arm
+    image: sannel/sannelhousegateway:1812.02-beta-linux-arm
     platform:
       architecture: arm
       os: linux
