@@ -5,7 +5,7 @@ services:
     image: ${DOCKER_REGISTRY-}sannelhousegateway:${SANNEL_VERSION}-${TYPE:-beta}-${SANNEL_ARCH}
     build:
       context: .
-      dockerfile: src\Sannel.House.Gateway\Dockerfile
+      dockerfile: src/Sannel.House.Gateway/Dockerfile
     ports:
       - "443:443"
     networks:
