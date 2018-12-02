@@ -1,0 +1,34 @@
+version: '3.4'
+
+services:
+  gateway:
+    image: ${DOCKER_REGISTRY-}sannelhousegateway:${SANNEL_VERSION}-${TYPE:-beta}-${SANNEL_ARCH}
+    build:
+      context: .
+      dockerfile: src\Sannel.House.Gateway\Dockerfile
+    ports:
+      - "443:443"
+    networks:
+      housenet:
+    depends_on:
+      - users
+      - devices
+
+  users:
+    image: ${DOCKER_REGISTRY}sannelhouseusers:beta
+    networks: 
+      housenet:
+        aliases:
+          - "users.local.adamholt.us"
+
+  devices:
+    image: ${DOCKER_REGISTRY}sannelhousedevices:beta
+    networks:
+      housenet:
+        aliases:
+          - "devices.local.adamholt.us"
+    depends_on:
+      - users
+
+networks:
+  housenet:

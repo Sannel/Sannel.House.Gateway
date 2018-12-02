@@ -1,0 +1,12 @@
+version: '3.4'
+
+services:
+  users:
+    volumes:
+      - "./RunData/users/app_config:/app/app_config"
+      - "./RunData/users/app_data:/app/app_data"
+
+  devices:
+    volumes:
+      - "./RunData/devices/app_config:/app/app_config"
+      - "./RunData/devices/app_data:/app/app_data"
