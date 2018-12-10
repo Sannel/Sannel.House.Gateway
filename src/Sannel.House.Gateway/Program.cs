@@ -17,21 +17,21 @@ using Microsoft.AspNetCore;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Logging;
+using Ocelot.DependencyInjection;
 
 namespace Sannel.House.Gateway
 {
 	public class Program
 	{
-		public static void Main(string[] args)
-		{
-			CreateWebHostBuilder(args).Build().Run();
-		}
+		public static void Main(string[] args) 
+			=> CreateWebHostBuilder(args).Build().Run();
 
 		public static IWebHostBuilder CreateWebHostBuilder(string[] args) =>
 			WebHost.CreateDefaultBuilder(args)
-				.ConfigureAppConfiguration(c =>
+				.ConfigureAppConfiguration((context, c) =>
 				{
 					c.AddJsonFile(Path.Combine("app_config", "appsettings.json"), false, false);
+					c.AddOcelot("app_config", context.HostingEnvironment);
 				})
 				.UseStartup<Startup>();
 	}
