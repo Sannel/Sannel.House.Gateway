@@ -2,29 +2,37 @@
 param(
 )
 
-$target = ""
+$version = $env:BUILD_BUILDNUMBER;
+
+if($null -eq $version -or $version -eq "")
+{
+	$version = (Get-Date -Format yyMMdd) + "-local";
+}
+
+if($null -ne $env:docker_user)
+{
+	docker login -u $env:docker_user -p $env:docker_password
+}
 
 if($IsLinux -eq $true -or $IsMacOS -eq $true)
 {
-	$uname = uname -p
-	if($uname -eq "x86_64" -or $uname -eq "i386")
+	$uname = uname -m
+	if($uname -eq "x86_64")
 	{
-		$uname = "x86";
+		$uname = "x64";
 	}
-	if($uname -eq "armv7l" -or $uname -eq "unknown") # for now assume unknown is arm
+	if($uname -eq "armv7l") # for now assume unknown is arm
 	{
 		$uname = "arm";
 	}
 
-	$env:USER="root"
 	$env:SANNEL_ARCH="linux-$uname"
-	$env:SANNEL_VERSION=Get-Date -format yyMM.dd
+	$env:SANNEL_VERSION=$version
 	return docker-compose -f docker-compose.yml -f docker-compose.unix.yml push $target
 }
 else
 {
-	$env:USER="administrator"
 	$env:SANNEL_ARCH="win"
-	$env:SANNEL_VERSION=Get-Date -format yyMM.dd
+	$env:SANNEL_VERSION=$version
 	return docker-compose -f docker-compose.yml -f docker-compose.windows.yml push $target
 }

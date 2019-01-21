@@ -14,7 +14,7 @@
     <PackageReference Include="IdentityServer4" Version="2.3.2" />
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="2.7.0" />
     <PackageReference Include="Microsoft.AspNetCore.App" />
-    <PackageReference Include="Ocelot" Version="12.0.1" />
+    <PackageReference Include="Ocelot" Version="13.0.0" />
     <PackageReference Include="Sannel.House.Web.Helpers" Version="1811.25.1-beta" />
   </ItemGroup>
 

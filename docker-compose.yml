@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gateway:
-    image: ${DOCKER_REGISTRY-}sannelhousegateway:${SANNEL_VERSION}-${TYPE:-beta}-${SANNEL_ARCH}
+    image: ${DOCKER_REGISTRY-}sannelhousegateway:build-${SANNEL_VERSION}-${SANNEL_ARCH}
     build:
       context: .
       dockerfile: src/Sannel.House.Gateway/Dockerfile
@@ -19,14 +19,14 @@ services:
     networks: 
       housenet:
         aliases:
-          - "users.local.adamholt.us"
+          - "house.dev.local"
 
   devices:
     image: ${DOCKER_REGISTRY}sannelhousedevices:beta
     networks:
       housenet:
         aliases:
-          - "devices.local.adamholt.us"
+          - "devices.house.dev.local"
     depends_on:
       - users
 
