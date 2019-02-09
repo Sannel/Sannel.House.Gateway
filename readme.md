@@ -1,5 +1,5 @@
 # Sannel.House.Gateway
-This is the api gateway responsable for routing requests.
+This is the api gateway responsible for routing requests.
 
 # Builds
 
