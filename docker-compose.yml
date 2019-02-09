@@ -2,7 +2,7 @@ version: '3.4'
 
 services:
   gateway:
-    image: ${DOCKER_REGISTRY-}sannelhousegateway:build-${SANNEL_VERSION}-${SANNEL_ARCH}
+    image: ${DOCKER_REGISTRY}${ImageName}:${BuildType}-${SANNEL_VERSION}-${SANNEL_ARCH}
     build:
       context: .
       dockerfile: src/Sannel.House.Gateway/Dockerfile
