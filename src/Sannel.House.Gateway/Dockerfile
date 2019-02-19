@@ -7,6 +7,8 @@ EXPOSE 443
 
 FROM microsoft/dotnet:2.2-sdk AS build
 WORKDIR /src
+COPY [".nuget/nuget.config", ".nuget/nuget.config"]
+COPY ["Directory.Build.props", "./"]
 COPY src/Sannel.House.Gateway/Sannel.House.Gateway.csproj src/Sannel.House.Gateway/
 RUN dotnet restore src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
 COPY . .
@@ -19,4 +21,6 @@ RUN dotnet publish Sannel.House.Gateway.csproj -c Release -o /app
 FROM base AS final
 WORKDIR /app
 COPY --from=publish /app .
+ARG USER=root
+USER ${USER}
 ENTRYPOINT ["dotnet", "Sannel.House.Gateway.dll"]

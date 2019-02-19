@@ -9,25 +9,23 @@
    See the License for the specific language governing permissions and
    limitations under the License.*/
 
-using System;
+using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Sannel.House.Web;
+using System;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
-using IdentityServer4.AccessTokenValidation;
 
 namespace Sannel.House.Gateway
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration)
-		{
-			Configuration = configuration;
-		}
+		public Startup(IConfiguration configuration) => this.Configuration = configuration;
 
 		public IConfiguration Configuration { get; }
 
@@ -36,18 +34,24 @@ namespace Sannel.House.Gateway
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			var authenticationProviderKey = "openid";
-			Action<IdentityServerAuthenticationOptions> options = o =>
-			{
-				o.Authority = Configuration["Authority"];
-				o.ApiName = "openid";
-				o.SupportedTokens = SupportedTokens.Both;
-			};
+			services.AddAuthentication("houseapi")
+				.AddIdentityServerAuthentication("houseapi", o =>
+				{
+					o.Authority = this.Configuration["Authentication:AuthorityUrl"];
+					o.ApiName = this.Configuration["Authentication:ApiName"];
+					o.SupportedTokens = SupportedTokens.Both;
 
-			services.AddAuthentication()
-				.AddIdentityServerAuthentication(authenticationProviderKey, options);
+#if DEBUG
+					if (this.Configuration.GetValue<bool?>("Authentication:DisableRequireHttpsMetadata") == true)
+					{
+						o.RequireHttpsMetadata = false;
+					}
+#endif
+				});
 
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_1);
+
+
+			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 
 			services.AddOcelot();
 		}
@@ -56,6 +60,7 @@ namespace Sannel.House.Gateway
 		public async void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider provider)
 		{
 			provider.CheckAndInstallTrustedCertificate();
+
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
@@ -71,12 +76,7 @@ namespace Sannel.House.Gateway
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
 
-			app.UseMvc(routes =>
-			{
-				routes.MapRoute(
-					name: "default",
-					template: "{controller=Home}/{action=Index}/{id?}");
-			});
+			app.UseMvc();
 
 			await app.UseOcelot();
 		}
