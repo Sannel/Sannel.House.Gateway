@@ -10,7 +10,7 @@ WORKDIR /src
 COPY [".nuget/nuget.config", ".nuget/nuget.config"]
 COPY ["Directory.Build.props", "./"]
 COPY src/Sannel.House.Gateway/Sannel.House.Gateway.csproj src/Sannel.House.Gateway/
-RUN dotnet restore src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
+RUN dotnet restore --configfile .nuget/nuget.config src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
 COPY . .
 WORKDIR /src/src/Sannel.House.Gateway
 RUN dotnet build Sannel.House.Gateway.csproj -c Release -o /app
