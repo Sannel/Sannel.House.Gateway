@@ -41,12 +41,10 @@ namespace Sannel.House.Gateway
 					o.ApiName = this.Configuration["Authentication:ApiName"];
 					o.SupportedTokens = SupportedTokens.Both;
 
-#if DEBUG
 					if (this.Configuration.GetValue<bool?>("Authentication:DisableRequireHttpsMetadata") == true)
 					{
 						o.RequireHttpsMetadata = false;
 					}
-#endif
 				});
 
 
