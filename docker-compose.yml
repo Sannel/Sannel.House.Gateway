@@ -10,19 +10,21 @@ services:
       - "443:443"
     networks:
       housenet:
+        aliases:
+          - "gateway.house.dev.local"
     depends_on:
       - users
       - devices
 
   users:
-    image: ${DOCKER_REGISTRY}sannelhouseusers:beta
+    image: ${DOCKER_REGISTRY}house.users:beta
     networks: 
       housenet:
         aliases:
           - "house.dev.local"
 
   devices:
-    image: ${DOCKER_REGISTRY}sannelhousedevices:beta
+    image: ${DOCKER_REGISTRY}house.devices:beta
     networks:
       housenet:
         aliases:

@@ -1,2 +1,6 @@
 version: '3.4'
 
+services:
+  gateway:
+    volumes:
+      - "./src/Sannel.House.Gateway/app_config:c:/app/app_config"
