@@ -6,6 +6,8 @@ services:
     build:
       context: .
       dockerfile: src/Sannel.House.Gateway/Dockerfile
+      args:
+        USER: "${USER}"
     ports:
       - "443:443"
     networks:
