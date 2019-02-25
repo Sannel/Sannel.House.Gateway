@@ -34,12 +34,16 @@ namespace Sannel.House.Gateway
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
-			services.AddAuthentication("houseapi")
-				.AddIdentityServerAuthentication("houseapi", o =>
+			services.AddAuthentication()
+				.AddIdentityServerAuthentication(this.Configuration["Authentication:Schema"], o =>
 				{
 					o.Authority = this.Configuration["Authentication:AuthorityUrl"];
 					o.ApiName = this.Configuration["Authentication:ApiName"];
 					o.SupportedTokens = SupportedTokens.Both;
+					if(!string.IsNullOrWhiteSpace(this.Configuration["Authentication:ApiSecret"]))
+					{
+						o.ApiSecret = this.Configuration["Authentication:ApiSecret"];
+					}
 
 					if (this.Configuration.GetValue<bool?>("Authentication:DisableRequireHttpsMetadata") == true)
 					{
