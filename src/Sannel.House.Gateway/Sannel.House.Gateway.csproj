@@ -7,6 +7,14 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <None Remove="app_config\appsettings.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="app_config\appsettings.yml" />
+  </ItemGroup>
+
+  <ItemGroup>
     <Folder Include="wwwroot\" />
   </ItemGroup>
 
@@ -16,6 +24,7 @@
     <PackageReference Include="Microsoft.AspNetCore.App" />
     <PackageReference Include="Ocelot" Version="13.0.0" />
     <PackageReference Include="Sannel.House.Web" Version="201902.118.101-beta" />
+    <PackageReference Include="NetEscapades.Configuration.Yaml" Version="1.6.0" />
   </ItemGroup>
 
 </Project>

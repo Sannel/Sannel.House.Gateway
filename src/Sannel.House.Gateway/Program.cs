@@ -30,7 +30,8 @@ namespace Sannel.House.Gateway
 			WebHost.CreateDefaultBuilder(args)
 				.ConfigureAppConfiguration((context, c) =>
 				{
-					c.AddJsonFile(Path.Combine("app_config", "appsettings.json"), false, false);
+					c.AddJsonFile(Path.Combine("app_config", "appsettings.json"), true, true);
+					c.AddYamlFile(Path.Combine("app_config", "appsettings.yml"), true, true);
 					c.AddOcelot("app_config", context.HostingEnvironment);
 				})
 				.UseStartup<Startup>();
