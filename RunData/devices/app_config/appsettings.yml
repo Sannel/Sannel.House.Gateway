@@ -1,15 +1,20 @@
 ---
-GlobalConfiguration:
-  BaseUrl: http://house.dev.local
+Db:
+  Provider: sqlite
+  ConnectionString: Data Source=app_data/data.db
 Authentication:
-  AuthorityUrl: http://house.dev.local
   Schema: houseapi
+  AuthorityUrl: http://house.dev.local:8080
   ApiName: houseapi
-  ApiSecret: GatewayPassword
   DisableRequireHttpsMetadata: true
 Cert:
-  Install: false
+  Install: true
   Crt: app_config/Sannel Software - Dev - CA.crt
+Logging:
+  LogLevel:
+    Default: Debug
+    System: Information
+    Microsoft: Information
 Kestrel:
   Endpoints:
     HTTP:

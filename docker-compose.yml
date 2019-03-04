@@ -6,10 +6,8 @@ services:
     build:
       context: .
       dockerfile: src/Sannel.House.Gateway/Dockerfile
-      args:
-        USER: "${USER}"
     ports:
-      - "443:443"
+      - "8080:8080"
     networks:
       housenet:
         aliases:
@@ -20,6 +18,8 @@ services:
 
   users:
     image: ${DOCKER_REGISTRY}house.users:beta
+    ports:
+      - "8081:8080"
     networks: 
       housenet:
         aliases:
