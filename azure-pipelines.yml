@@ -3,8 +3,8 @@ trigger:
 - develop
 
 variables:
-  sdk_version: 2.2.104
-  imageName: sannel/house.users:$(Build.SourceBranchName)-$(Build.BuildId)
+  sdk_version: 2.2.203
+  imageName: sannel/house.gateway:$(Build.SourceBranchName)-$(Build.BuildId)
 
 name: $(date:yyyy.MM.dd)$(rev:.rr)
 
@@ -21,7 +21,7 @@ jobs:
     displayName: 'dotnet restore'
     inputs:
       command: custom
-      projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+      projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
       custom: restore
       arguments: '-r osx-x64 --configfile .nuget/nuget.config'
       feedsToUse: config
@@ -30,13 +30,13 @@ jobs:
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build Release'
     inputs:
-      projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+      projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
       arguments: '-r osx-x64 -c Release'
     condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: DotNetCoreCLI@2
     displayName: 'dotnet build Debug'
     inputs:
-      projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+      projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
       arguments: '-r osx-x64 -c Debug'
     condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
   - task: DotNetCoreCLI@2
@@ -44,22 +44,22 @@ jobs:
     inputs:
       command: publish
       publishWebProjects: false
-      projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+      projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
       arguments: '-r osx-x64 -o $(Build.StagingDirectory)'
       zipAfterPublish: false
   - task: CopyFiles@2
-    displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+    displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
     inputs:
-      SourceFolder: 'src/Sannel.House.Users/app_config'
+      SourceFolder: 'src/Sannel.House.Gateway/app_config'
       Contents: |
         **/*.json
         **/*.yml
         **/*.pfx
         **/*.crt
-      TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+      TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
   - powershell: |
-      New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/
-      New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/.hold
+      New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/
+      New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/.hold
     displayName: 'Prepare Items'
   - task: PublishPipelineArtifact@0
     displayName: 'Publish Pipeline Artifact'
@@ -88,7 +88,7 @@ jobs:
       displayName: 'dotnet restore'
       inputs:
         command: custom
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         custom: restore
         arguments: '-r linux-arm --configfile .nuget/nuget.config'
         feedsToUse: config
@@ -97,13 +97,13 @@ jobs:
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Release'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-arm -c Release'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Debug'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-arm -c Debug'
       condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
@@ -111,22 +111,22 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-arm -o $(Build.StagingDirectory)'
         zipAfterPublish: false
     - task: CopyFiles@2
-      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
       inputs:
-        SourceFolder: 'src/Sannel.House.Users/app_config'
+        SourceFolder: 'src/Sannel.House.Gateway/app_config'
         Contents: |
           **/*.json
           **/*.yml
           **/*.pfx
           **/*.crt
-        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
     - powershell: |
-        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/
-        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/.hold
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/.hold
         
         copy-item -Force -Verbose build/linux-arm/Dockerfile $(Build.StagingDirectory)/
       displayName: 'Prepare Items'
@@ -185,7 +185,7 @@ jobs:
       displayName: 'dotnet restore'
       inputs:
         command: custom
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         custom: restore
         arguments: '-r linux-x64 --configfile .nuget/nuget.config'
         feedsToUse: config
@@ -195,14 +195,14 @@ jobs:
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Release'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-x64 -c Release'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
 
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Debug'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-x64 -c Debug'
       condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
 
@@ -211,24 +211,24 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r linux-x64 -o $(Build.StagingDirectory)'
         zipAfterPublish: false
 
     - task: CopyFiles@2
-      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
       inputs:
-        SourceFolder: 'src/Sannel.House.Users/app_config'
+        SourceFolder: 'src/Sannel.House.Gateway/app_config'
         Contents: |
           **/*.json
           **/*.yml
           **/*.pfx
           **/*.crt
-        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
 
     - powershell: |
-        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/
-        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/.hold
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/.hold
         
         copy-item -Force -Verbose build/linux-x64/Dockerfile $(Build.StagingDirectory)/
       displayName: 'Prepare Items'
@@ -281,7 +281,7 @@ jobs:
       displayName: 'dotnet restore'
       inputs:
         command: custom
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         custom: restore
         arguments: '-r win-x64 --configfile .nuget/nuget.config'
         feedsToUse: config
@@ -290,13 +290,13 @@ jobs:
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Release'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r win-x64 -c Release'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Debug'
       inputs:
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r win-x64 -c Debug'
       condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
@@ -304,22 +304,22 @@ jobs:
       inputs:
         command: publish
         publishWebProjects: false
-        projects: src/Sannel.House.Users/Sannel.House.Users.csproj
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
         arguments: '-r win-x64 -o $(Build.StagingDirectory)'
         zipAfterPublish: false
     - task: CopyFiles@2
-      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
       inputs:
-        SourceFolder: 'src/Sannel.House.Users/app_config'
+        SourceFolder: 'src/Sannel.House.Gateway/app_config'
         Contents: |
           **/*.json
           **/*.yml
           **/*.pfx
           **/*.crt
-        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Users/app_config/'
+        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
     - powershell: |
-        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/
-        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Users/app_data/.hold
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/.hold
         
         copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
       displayName: 'Prepare Items'
