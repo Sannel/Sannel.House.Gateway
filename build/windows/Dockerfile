@@ -4,6 +4,6 @@ WORKDIR /app
 EXPOSE 8080
 EXPOSE 8443
 
-COPY Sannel.House.Users/ .
+COPY Sannel.House.Gareway/ .
 USER ContainerUser
 ENTRYPOINT ["dotnet", "Sannel.House.Gateway.dll"]
