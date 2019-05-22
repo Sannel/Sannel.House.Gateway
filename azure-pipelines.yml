@@ -3,7 +3,7 @@ trigger:
 - develop
 
 variables:
-  sdk_version: 2.2.203
+  sdk_version: 2.2.204
   imageName: sannel/house.gateway:$(Build.SourceBranchName)-$(Build.BuildId)
 
 name: $(date:yyyy.MM.dd)$(rev:.rr)
@@ -323,6 +323,14 @@ jobs:
         
         copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
       displayName: 'Prepare Items'
+#    - task: Docker@0
+#      displayName: 'Build an image x64 1903'
+#      inputs:
+#        containerregistrytype: 'Container Registry'
+#        dockerRegistryConnection: 'Docker Hub'
+#        action: 'Run a Docker command'
+#        customCommand: 'build --build-arg tag=2.2-nanoserver-1903 -t $(imageName)-win-x64-1903 --isolation hyperv $(Build.StagingDirectory)'
+
     - task: Docker@0
       displayName: 'Build an image x64 1809'
       inputs:
@@ -350,6 +358,14 @@ jobs:
         defaultContext: false
         context: '$(Build.StagingDirectory)'
         imageName: '$(imageName)-win-x64-1709'
+#    - task: Docker@1
+#      displayName: 'Push an image 1903'
+#      inputs:
+#        containerregistrytype: 'Container Registry'
+#        dockerRegistryEndpoint: 'Docker Hub'
+#        command: 'Push an image'
+#        imageName: '$(imageName)-win-x64-1903'
+#      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.SourceBranch'], 'refs/heads/develop')))
     - task: Docker@1
       displayName: 'Push an image 1809'
       inputs:
@@ -385,5 +401,104 @@ jobs:
       displayName: 'Publish Pipeline Artifact'
       inputs:
         artifactName: 'win-x64'
+        targetPath: '$(Build.StagingDirectory)'
+
+- job: windows_arm
+  pool:
+    vmImage: windows-2019
+  dependsOn: windows_x64
+  condition: succeeded('windows_x64')
+  steps:
+    - task: DotNetCoreInstaller@0
+      displayName: 'Use .NET Core sdk $(sdk_version)'
+      inputs:
+        version: $(sdk_version)
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: custom
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
+        custom: restore
+        arguments: '-r win-arm --configfile .nuget/nuget.config'
+        feedsToUse: config
+        nugetConfigPath: .nuget/nuget.config
+        externalFeedCredentials: 'Sannel House MyGet'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Release'
+      inputs:
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
+        arguments: '-r win-arm -c Release'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Debug'
+      inputs:
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
+        arguments: '-r win-x64 -c Debug'
+      condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet publish'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: src/Sannel.House.Gateway/Sannel.House.Gateway.csproj
+        arguments: '-r win-arm -o $(Build.StagingDirectory)'
+        zipAfterPublish: false
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
+      inputs:
+        SourceFolder: 'src/Sannel.House.Gateway/app_config'
+        Contents: |
+          **/*.json
+          **/*.yml
+          **/*.pfx
+          **/*.crt
+        TargetFolder: '$(Build.StagingDirectory)/Sannel.House.Gateway/app_config/'
+    - powershell: |
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/Sannel.House.Gateway/app_data/.hold
+        
+        copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
+      displayName: 'Prepare Items'
+    - task: Docker@0
+      displayName: 'Build an image arm 1809'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryConnection: 'Docker Hub'
+        action: 'Run a Docker command'
+        customCommand: 'build --build-arg tag=2.2-nanoserver-1809-arm32v7 -t $(imageName)-win-arm-1809 --isolation hyperv $(Build.StagingDirectory)'
+#    - task: Docker@0
+#      displayName: 'Build an image arm 1903'
+#      inputs:
+#        containerregistrytype: 'Container Registry'
+#        dockerRegistryConnection: 'Docker Hub'
+#        action: 'Run a Docker command'
+#        customCommand: 'build --build-arg tag=2.2-nanoserver-1903-arm32v7 -t $(imageName)-win-arm-1903 --isolation hyperv $(Build.StagingDirectory)'
+    - task: Docker@1
+      displayName: 'Push an image 1809'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryEndpoint: 'Docker Hub'
+        command: 'Push an image'
+        imageName: '$(imageName)-win-arm-1809'
+      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.SourceBranch'], 'refs/heads/develop')))
+#    - task: Docker@1
+#      displayName: 'Push an image 1903'
+#      inputs:
+#        containerregistrytype: 'Container Registry'
+#        dockerRegistryEndpoint: 'Docker Hub'
+#        command: 'Push an image'
+#        imageName: '$(imageName)-win-arm-1903'
+#      condition: and(succeeded(), or(eq(variables['Build.SourceBranch'], 'refs/heads/master'), eq(variables['Build.SourceBranch'], 'refs/heads/develop')))
+    - powershell: |
+        # Write your powershell commands here.
+        
+        Remove-Item -Force $(Build.StagingDirectory)/Dockerfile*
+        
+        # Use the environment variables input below to pass secret variables to this script.
+      displayName: 'clean up'
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish Pipeline Artifact'
+      inputs:
+        artifactName: 'win-arm'
         targetPath: '$(Build.StagingDirectory)'
 
