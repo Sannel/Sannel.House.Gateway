@@ -54,6 +54,7 @@ namespace Sannel.House.Gateway
 
 
 			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
+			services.AddHealthChecks();
 
 			services.AddOcelot();
 		}
@@ -74,7 +75,8 @@ namespace Sannel.House.Gateway
 				app.UseHsts();
 			}
 
-			app.UseHttpsRedirection();
+			//app.UseHttpsRedirection();
+			app.UseHealthChecks("/health");
 			app.UseStaticFiles();
 			app.UseCookiePolicy();
 
