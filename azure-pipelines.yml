@@ -12,7 +12,7 @@ variables:
   mainProjectPath: src/$(projectFolder)/$(projectFolder).csproj
   mainConfigPath: src/$(projectFolder)/app_config
   tagVersion: 3.0
-  tagCodeName: buster
+  tagCodeName: bionic
   hasTests: false
   disableLinux: false
   disableArm64: false
