@@ -15,25 +15,96 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Hosting;
+using Microsoft.Extensions.Logging;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Sannel.House.Web;
 using System;
+using System.Collections.Generic;
+using System.Globalization;
+using System.Linq;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Sannel.House.Gateway
 {
 	public class Startup
 	{
-		public Startup(IConfiguration configuration) => this.Configuration = configuration;
+		public Startup(IConfiguration configuration, ILogger<Startup> logger)
+		{
+			this.Configuration = configuration;
+			this.logger = logger;
+		}
 
 		public IConfiguration Configuration { get; }
+		private ILogger logger { get; }
 
 
 		// This method gets called by the runtime. Use this method to add services to the container.
 		// For more information on how to configure your application, visit https://go.microsoft.com/fwlink/?LinkID=398940
 		public void ConfigureServices(IServiceCollection services)
 		{
+			services.AddCors(i =>
+			{
+				i.AddDefaultPolicy(p =>
+				{
+					var origins = Configuration.GetSection("Cors:Origins").Get<string[]>();
+					if (string.Compare(origins?.FirstOrDefault(), "any", true, CultureInfo.InvariantCulture) == 0)
+					{
+						logger.LogInformation("Allowing any Origin");
+						p.AllowAnyOrigin();
+					}
+					else if(origins != null)
+					{
+						logger.LogInformation($"Allowing Origins:{Environment.NewLine}{string.Join(Environment.NewLine, origins)}");
+						p.WithOrigins(origins);
+					}
+
+					var headers = Configuration.GetSection("Cors:Headers").Get<string[]>();
+					if(string.Compare(headers?.FirstOrDefault(), "any", true, CultureInfo.InvariantCulture) == 0)
+					{
+						logger.LogInformation("Allow any header");
+						p.AllowAnyHeader();
+					}
+					else if(headers != null)
+					{
+						logger.LogInformation($"Allow Headers:{Environment.NewLine}{string.Join(Environment.NewLine, headers)}");
+						p.WithHeaders(headers);
+					}
+
+					var methods = Configuration.GetSection("Cors:Methods").Get<string[]>();
+					if(string.Compare(methods?.FirstOrDefault(), "any", true, CultureInfo.InvariantCulture) == 0)
+					{
+						logger.LogInformation("Allow any Method");
+						p.AllowAnyMethod();
+					}
+					else if(methods != null)
+					{
+						logger.LogInformation($"Allow Methods:{Environment.NewLine}{string.Join(Environment.NewLine, methods)}");
+						p.WithMethods(methods);
+					}
+
+					var wildcard = Configuration.GetSection("Cors:AllowWildCardDomains").Get<bool?>();
+					if(wildcard == true)
+					{
+						logger.LogInformation("Allowing wild card domains");
+						p.SetIsOriginAllowedToAllowWildcardSubdomains();
+					}
+
+					var allowCredentials = Configuration.GetSection("Cors:AllowCredentials").Get<bool?>();
+					if(allowCredentials == true)
+					{
+						logger.LogInformation("Allowing Credentials");
+						p.AllowCredentials();
+					}
+					else
+					{
+						logger.LogInformation("Disallowing Credentials");
+						p.DisallowCredentials();
+					}
+				});
+			});
+
 			services.AddAuthentication()
 				.AddIdentityServerAuthentication(this.Configuration["Authentication:Schema"], o =>
 				{
@@ -51,36 +122,28 @@ namespace Sannel.House.Gateway
 					}
 				});
 
-
-
-			services.AddMvc().SetCompatibilityVersion(CompatibilityVersion.Version_2_2);
 			services.AddHealthChecks();
 
 			services.AddOcelot();
 		}
 
 		// This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
-		public async void Configure(IApplicationBuilder app, IHostingEnvironment env, IServiceProvider provider)
+		public async void Configure(IApplicationBuilder app, IWebHostEnvironment env, IServiceProvider provider)
 		{
 			provider.CheckAndInstallTrustedCertificate();
 
 			if (env.IsDevelopment())
 			{
 				app.UseDeveloperExceptionPage();
-				app.UseDatabaseErrorPage();
 			}
 			else
 			{
 				app.UseExceptionHandler("/Home/Error");
-				app.UseHsts();
 			}
 
 			//app.UseHttpsRedirection();
 			app.UseHealthChecks("/health");
-			app.UseStaticFiles();
-			app.UseCookiePolicy();
-
-			app.UseMvc();
+			app.UseCors();
 
 			await app.UseOcelot();
 		}

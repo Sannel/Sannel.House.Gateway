@@ -7,6 +7,17 @@ Authentication:
   ApiName: houseapi
   ApiSecret: GatewayPassword
   DisableRequireHttpsMetadata: true
+Cors:
+  Origins:
+  - Any
+  Headers:
+  - Any
+  Methods:
+  - Any
+  AllowWildCardDomains: false
+  AllowCredentials: false
+
+
 Cert:
   Install: false
   Crt: app_config/Sannel Software - Dev - CA.crt
