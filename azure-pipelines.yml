@@ -12,7 +12,7 @@ variables:
   mainProjectPath: src/$(projectFolder)/$(projectFolder).csproj
   mainConfigPath: src/$(projectFolder)/app_config
   tagVersion: 3.0
-  tagCodeName: bionic
+  tagCodeName: buster
   hasTests: false
   disableLinux: false
   disableArm64: false
@@ -182,7 +182,7 @@ jobs:
         containerregistrytype: 'Container Registry'
         dockerRegistryConnection: 'Docker Hub'
         dockerFile: '$(Build.StagingDirectory)/Dockerfile'
-        buildArguments: 'tag=$(tagVersion)-$(tagCodeName)-arm32v7'
+        buildArguments: 'tag=$(tagVersion)-$(tagCodeName)-slim-arm32v7'
         defaultContext: false
         context: '$(Build.StagingDirectory)'
         imageName: '$(imageName)-linux-arm32v7'
