@@ -631,7 +631,7 @@ jobs:
         targetPath: '$(Build.StagingDirectory)'
 
 - job: windows_x64_1909
-  pool: "1909"
+  pool: "1903"
   condition: ne(variables['disableWindows'], 'true')
   steps:
     - task: UseDotNet@2
