@@ -630,6 +630,106 @@ jobs:
         artifactName: 'win-x64-1903'
         targetPath: '$(Build.StagingDirectory)'
 
+- job: windows_x64_1909
+  pool: "1909"
+  condition: ne(variables['disableWindows'], 'true')
+  steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk $(sdk_version)'
+      inputs:
+        packageType: 'sdk'
+        version: '$(sdk_version)'
+        includePreviewVersions: false
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: custom
+        projects: $(mainProjectPath)
+        custom: restore
+        arguments: '-r win-x64 --configfile .nuget/nuget.config'
+        feedsToUse: config
+        nugetConfigPath: .nuget/nuget.config
+        externalFeedCredentials: 'Sannel House MyGet'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Release'
+      inputs:
+        projects: $(mainProjectPath)
+        arguments: '-r win-x64 -c Release'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Debug'
+      inputs:
+        projects: $(mainProjectPath)
+        arguments: '-r win-x64 -c Debug'
+      condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet publish'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: $(mainProjectPath)
+        arguments: '-r win-x64 -o $(Build.StagingDirectory)'
+        zipAfterPublish: false
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: custom
+        projects: '**/*Tests.csproj'
+        custom: restore
+        arguments: '-r win-x64 --configfile .nuget/nuget.config'
+        feedsToUse: config
+        nugetConfigPath: .nuget/nuget.config
+        externalFeedCredentials: 'Sannel House MyGet'
+      condition: eq(variables['hasTests'], 'true')
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        projects: '**/*Tests.csproj'
+        command: test
+        arguments: '--collect "Code coverage"'
+        publishTestResults: true
+      condition: eq(variables['hasTests'], 'true')
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/$(projectFolder)/app_config/'
+      inputs:
+        SourceFolder: '$(mainConfigPath)'
+        Contents: |
+          **/*.json
+          **/*.yml
+          **/*.pfx
+          **/*.crt
+        TargetFolder: '$(Build.StagingDirectory)/$(projectFolder)/app_config/'
+    - powershell: |
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/$(projectFolder)/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/$(projectFolder)/app_data/.hold
+        
+        copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
+      displayName: 'Prepare Items'
+    - task: Docker@0
+      displayName: 'Build an image x64 1909'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryConnection: 'Docker Hub'
+        action: 'Run a Docker command'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-1909 -t $(imageName)-win-x64-1909 --isolation hyperv $(Build.StagingDirectory)'
+    - powershell: |
+        docker save -o $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.x64.1909.tar $(imageName)-win-x64-1909
+        Compress-Archive $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.x64.1909.tar -DestinationPath $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.x64.1909.tar.zip
+        Remove-Item $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.x64.1909.tar 
+      displayName: 'export images'
+    - powershell: |
+        # Write your powershell commands here.
+        
+        Remove-Item -Force $(Build.StagingDirectory)/Dockerfile*
+        
+        # Use the environment variables input below to pass secret variables to this script.
+      displayName: 'clean up'
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish Pipeline Artifact'
+      inputs:
+        artifactName: 'win-x64-1909'
+        targetPath: '$(Build.StagingDirectory)'
+
 - job: windows_arm
   pool:
     vmImage: windows-2019
