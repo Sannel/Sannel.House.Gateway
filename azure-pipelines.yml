@@ -419,8 +419,7 @@ jobs:
         artifactName: 'linux-x64'
         targetPath: '$(Build.StagingDirectory)'
 
-  - job: windows 1803
-    template: build/tasks/windows.yaml
+  - template: build/tasks/windows.yaml
     parameters:
       release: '1803'
       arch: 'x64'
