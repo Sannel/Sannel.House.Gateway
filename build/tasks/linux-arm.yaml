@@ -11,6 +11,7 @@ jobs:
   variables:
     arch: ${{parameters['arch']}}
     archLong: ${{parameters['archLong']}}
+  condition: and(ne(variables['disableLinux'], 'true'), ne(variables['disable${{parameters['arch']}}'], 'true'))
   steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk $(sdk_version)'

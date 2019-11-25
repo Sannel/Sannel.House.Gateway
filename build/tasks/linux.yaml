@@ -4,6 +4,7 @@ parameters:
 jobs:
 - job: linux_x64
   pool: ${{parameters['pool']}}
+  condition: ne(variables['disableLinux'], 'true')
   steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk $(sdk_version)'
