@@ -39,11 +39,6 @@ jobs:
 
 - template: build/tasks/windows.yaml
   parameters:
-    release: '1803'
-    arch: 'x64'
-
-- template: build/tasks/windows.yaml
-  parameters:
     pool:
       vmImage: 'windows-2019'
     release: '1803'
