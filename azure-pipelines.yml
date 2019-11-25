@@ -420,7 +420,6 @@ jobs:
         targetPath: '$(Build.StagingDirectory)'
 
 - template: build/tasks/windows.yaml
-  displayName: 'Windows x64 1803'
   parameters:
     release: '1803'
     arch: 'x64'
