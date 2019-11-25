@@ -5,8 +5,11 @@ parameters:
   arch: x64
 
 jobs:
-- job: windows_x64
+- job: 'windows_{{parameters.arch}}_{{parameters.release}}'
   pool: "1903"
+  variables:
+    release: '{{parameters.release}}'
+    arch: '{{parameters.arch}}'
   steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk $(sdk_version)'
@@ -20,7 +23,7 @@ jobs:
         command: custom
         projects: $(mainProjectPath)
         custom: restore
-        arguments: '-r win-{{parameters.arch}} --configfile .nuget/nuget.config'
+        arguments: '-r win-$(arch) --configfile .nuget/nuget.config'
         feedsToUse: config
         nugetConfigPath: .nuget/nuget.config
         externalFeedCredentials: 'Sannel House MyGet'
@@ -28,13 +31,13 @@ jobs:
       displayName: 'dotnet build Release'
       inputs:
         projects: $(mainProjectPath)
-        arguments: '-r win-{{parameters.arch}} -c Release'
+        arguments: '-r win-$(arch) -c Release'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Debug'
       inputs:
         projects: $(mainProjectPath)
-        arguments: '-r win-{{parameters.arch}} -c Debug'
+        arguments: '-r win-$(arch) -c Debug'
       condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet publish'
@@ -42,7 +45,7 @@ jobs:
         command: publish
         publishWebProjects: false
         projects: $(mainProjectPath)
-        arguments: '-r win-{{parameters.arch}} -o $(Build.StagingDirectory)'
+        arguments: '-r win-$(arch) -o $(Build.StagingDirectory)'
         zipAfterPublish: false
     - task: DotNetCoreCLI@2
       displayName: 'dotnet restore'
@@ -50,7 +53,7 @@ jobs:
         command: custom
         projects: '**/*Tests.csproj'
         custom: restore
-        arguments: '-r win-{{parameters.arch}} --configfile .nuget/nuget.config'
+        arguments: '-r win-$(arch) --configfile .nuget/nuget.config'
         feedsToUse: config
         nugetConfigPath: .nuget/nuget.config
         externalFeedCredentials: 'Sannel House MyGet'
@@ -85,11 +88,11 @@ jobs:
         containerregistrytype: 'Container Registry'
         dockerRegistryConnection: 'Docker Hub'
         action: 'Run a Docker command'
-        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-{{parameters.arch}} -t $(imageName)-win-{{parameters.arch}}-{{parameters.release}} --isolation hyperv $(Build.StagingDirectory)'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(arch) -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
     - powershell: |
-        docker save -o $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.{{parameters.arch}}.{{parameters.release}}.tar $(imageName)-win-{{parameters.arch}}-{{parameters.release}}
-        Compress-Archive $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.{{parameters.arch}}.{{parameters.release}}.tar -DestinationPath $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.{{parameters.arch}}.{{parameters.release}}.tar.zip
-        Remove-Item $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.{{parameters.arch}}.{{parameters.release}}.tar 
+        docker save -o $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar $(imageName)-win-$(arch)-$(release)
+        Compress-Archive $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar -DestinationPath $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar.zip
+        Remove-Item $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar 
       displayName: 'export images'
     - powershell: |
         # Write your powershell commands here.
