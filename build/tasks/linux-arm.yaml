@@ -4,6 +4,7 @@ parameters:
   qemuStatic: qemu-aarch64-static
   arch: arm64
   archLong: arm64v8
+  ridSuffix: ${{parameters['arch']}}
 
 jobs:
 - job: linux_${{parameters['arch']}}
@@ -32,7 +33,7 @@ jobs:
         command: custom
         projects: $(mainProjectPath)
         custom: restore
-        arguments: '-r linux-$(arch) --configfile .nuget/nuget.config'
+        arguments: '-r linux-$(ridSuffix) --configfile .nuget/nuget.config'
         feedsToUse: config
         nugetConfigPath: .nuget/nuget.config
         externalFeedCredentials: 'Sannel House MyGet'
@@ -40,13 +41,13 @@ jobs:
       displayName: 'dotnet build Release'
       inputs:
         projects: $(mainProjectPath)
-        arguments: '-r linux-$(arch) -c Release'
+        arguments: '-r linux-$(ridSuffix) -c Release'
       condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet build Debug'
       inputs:
         projects: $(mainProjectPath)
-        arguments: '-r linux-$(arch) -c Debug'
+        arguments: '-r linux-$(ridSuffix) -c Debug'
       condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
     - task: DotNetCoreCLI@2
       displayName: 'dotnet publish'
@@ -54,7 +55,7 @@ jobs:
         command: publish
         publishWebProjects: false
         projects: $(mainProjectPath)
-        arguments: '-r linux-$(arch) -o $(Build.StagingDirectory)'
+        arguments: '-r linux-$(ridSuffix) -o $(Build.StagingDirectory)'
         zipAfterPublish: false
     - task: CopyFiles@2
       displayName: 'Copy Files to: $(Build.StagingDirectory)/$(projectFolder)/app_config/'
@@ -82,7 +83,7 @@ jobs:
         imageName: ' multiarch/qemu-user-static:register'
         containerCommand: '--reset'
     - task: Docker@0
-      displayName: 'Build an image arm'
+      displayName: 'Build an image $(arch)'
       inputs:
         containerregistrytype: 'Container Registry'
         dockerRegistryConnection: 'Docker Hub'
