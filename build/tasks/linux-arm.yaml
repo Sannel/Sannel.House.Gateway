@@ -6,7 +6,7 @@ parameters:
   archLong: arm64v8
 
 jobs:
-- job: linux_${{arch}}
+- job: linux_${{parameters['arch']}}
   pool: ${{parameters['pool']}}
   variables:
     arch: ${{parameters['arch']}}
