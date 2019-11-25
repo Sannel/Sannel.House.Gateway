@@ -8,8 +8,8 @@ jobs:
 - job: "windows_${{parameters['arch']}}_${{parameters['release']}}"
   pool: "1903"
   variables:
-    release: '{{parameters.release}}'
-    arch: '{{parameters.arch}}'
+    release: '${{parameters.release}}'
+    arch: '${{parameters.arch}}'
   steps:
     - task: UseDotNet@2
       displayName: 'Use .NET Core sdk $(sdk_version)'
@@ -83,7 +83,7 @@ jobs:
         copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
       displayName: 'Prepare Items'
     - task: Docker@0
-      displayName: 'Build an image {{parameters.arch}} {{parameters.release}}'
+      displayName: 'Build an image ${{parameters.arch}} ${{parameters.release}}'
       inputs:
         containerregistrytype: 'Container Registry'
         dockerRegistryConnection: 'Docker Hub'
@@ -104,5 +104,5 @@ jobs:
     - task: PublishPipelineArtifact@0
       displayName: 'Publish Pipeline Artifact'
       inputs:
-        artifactName: 'win-{{parameters.arch}}-{{parameters.release}}'
+        artifactName: 'win-${{parameters.arch}}-${{parameters.release}}'
         targetPath: '$(Build.StagingDirectory)'
