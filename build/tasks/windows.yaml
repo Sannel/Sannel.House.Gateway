@@ -88,7 +88,16 @@ jobs:
         containerregistrytype: 'Container Registry'
         dockerRegistryConnection: 'Docker Hub'
         action: 'Run a Docker command'
-        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(arch) -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(release) -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
+      condition: eq(variables['arch'], 'x64')
+    - task: Docker@0
+      displayName: 'Build an image ${{parameters.arch}} ${{parameters.release}}'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryConnection: 'Docker Hub'
+        action: 'Run a Docker command'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(release)-arm32v7 -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
+      condition: eq(variables['arch'], 'arm')
     - powershell: |
         docker save -o $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar $(imageName)-win-$(arch)-$(release)
         Compress-Archive $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar -DestinationPath $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar.zip
