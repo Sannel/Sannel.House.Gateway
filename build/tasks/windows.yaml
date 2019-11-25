@@ -5,7 +5,7 @@ parameters:
   arch: x64
 
 jobs:
-- job: 'windows_{{parameters.arch}}_{{parameters.release}}'
+- job: windows
   pool: "1903"
   variables:
     release: '{{parameters.release}}'
