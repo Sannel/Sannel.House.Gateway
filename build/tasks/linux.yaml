@@ -1,5 +1,7 @@
 
 parameters:
+  pool:
+    vmImage: ubuntu-latest
 
 jobs:
 - job: linux_x64
