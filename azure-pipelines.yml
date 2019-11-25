@@ -28,6 +28,7 @@ jobs:
   parameters:
     arch: arm32
     archLong: arm32v7
+    ridSuffix: arm
     qemuStatic: qemu-arm-static
 
 - template: build/tasks/linux-arm.yaml

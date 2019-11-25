@@ -4,7 +4,7 @@ parameters:
   qemuStatic: qemu-aarch64-static
   arch: arm64
   archLong: arm64v8
-  ridSuffix: ${{parameters['arch']}}
+  ridSuffix: arm64
 
 jobs:
 - job: linux_${{parameters['arch']}}
