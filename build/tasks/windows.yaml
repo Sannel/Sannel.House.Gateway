@@ -3,6 +3,8 @@
 parameters:
   release: 1903
   arch: x64
+  pool:
+    vmImage: 'windows-2019'
 
 jobs:
 - job: "windows_${{parameters['arch']}}_${{parameters['release']}}"
