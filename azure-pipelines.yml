@@ -54,8 +54,14 @@ jobs:
 
 - template: build/tasks/windows.yaml
   parameters:
-    pool: '1903'
+    pool: 'WindowsLatest'
     release: '1903'
+    arch: 'x64'
+
+- template: build/tasks/windows.yaml
+  parameters:
+    pool: 'WindowsLatest'
+    release: '1909'
     arch: 'x64'
 
 - template: build/tasks/windows.yaml
