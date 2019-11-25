@@ -17,7 +17,7 @@ variables:
   disableLinux: false
   disableArm64: false
   disableWindows: false
-  disableOSX: true
+  disableOSX: false
 
 name: $(date:yyyy.MM.dd)$(rev:.rr)
 
