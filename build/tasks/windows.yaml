@@ -1,0 +1,119 @@
+# windows tasks
+
+parameters:
+  release: 1903
+  arch: x64
+  pool:
+    vmImage: 'windows-2019'
+
+jobs:
+- job: "windows_${{parameters['arch']}}_${{parameters['release']}}"
+  pool: ${{parameters['pool']}}
+  variables:
+    release: '${{parameters.release}}'
+    arch: '${{parameters.arch}}'
+  steps:
+    - task: UseDotNet@2
+      displayName: 'Use .NET Core sdk $(sdk_version)'
+      inputs:
+        packageType: 'sdk'
+        version: '$(sdk_version)'
+        includePreviewVersions: false
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: custom
+        projects: $(mainProjectPath)
+        custom: restore
+        arguments: '-r win-$(arch) --configfile .nuget/nuget.config'
+        feedsToUse: config
+        nugetConfigPath: .nuget/nuget.config
+        externalFeedCredentials: 'Sannel House MyGet'
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Release'
+      inputs:
+        projects: $(mainProjectPath)
+        arguments: '-r win-$(arch) -c Release'
+      condition: and(succeeded(), eq(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet build Debug'
+      inputs:
+        projects: $(mainProjectPath)
+        arguments: '-r win-$(arch) -c Debug'
+      condition: and(succeeded(), ne(variables['Build.SourceBranch'], 'refs/heads/master'))
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet publish'
+      inputs:
+        command: publish
+        publishWebProjects: false
+        projects: $(mainProjectPath)
+        arguments: '-r win-$(arch) -o $(Build.StagingDirectory)'
+        zipAfterPublish: false
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet restore'
+      inputs:
+        command: custom
+        projects: '**/*Tests.csproj'
+        custom: restore
+        arguments: '-r win-$(arch) --configfile .nuget/nuget.config'
+        feedsToUse: config
+        nugetConfigPath: .nuget/nuget.config
+        externalFeedCredentials: 'Sannel House MyGet'
+      condition: eq(variables['hasTests'], 'true')
+    - task: DotNetCoreCLI@2
+      displayName: 'dotnet test'
+      inputs:
+        projects: '**/*Tests.csproj'
+        command: test
+        arguments: '--collect "Code coverage"'
+        publishTestResults: true
+      condition: eq(variables['hasTests'], 'true')
+    - task: CopyFiles@2
+      displayName: 'Copy Files to: $(Build.StagingDirectory)/$(projectFolder)/app_config/'
+      inputs:
+        SourceFolder: '$(mainConfigPath)'
+        Contents: |
+          **/*.json
+          **/*.yml
+          **/*.pfx
+          **/*.crt
+        TargetFolder: '$(Build.StagingDirectory)/$(projectFolder)/app_config/'
+    - powershell: |
+        New-Item -Type Directory -Force $(Build.StagingDirectory)/$(projectFolder)/app_data/
+        New-Item -Type File -Force $(Build.StagingDirectory)/$(projectFolder)/app_data/.hold
+        
+        copy-item -Force -Verbose build/windows/Dockerfile $(Build.StagingDirectory)/
+      displayName: 'Prepare Items'
+    - task: Docker@0
+      displayName: 'Build an image ${{parameters.arch}} ${{parameters.release}}'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryConnection: 'Docker Hub'
+        action: 'Run a Docker command'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(release) -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
+      condition: eq(variables['arch'], 'x64')
+    - task: Docker@0
+      displayName: 'Build an image ${{parameters.arch}} ${{parameters.release}}'
+      inputs:
+        containerregistrytype: 'Container Registry'
+        dockerRegistryConnection: 'Docker Hub'
+        action: 'Run a Docker command'
+        customCommand: 'build --build-arg tag=$(tagVersion)-nanoserver-$(release)-arm32v7 -t $(imageName)-win-$(arch)-$(release) --isolation hyperv $(Build.StagingDirectory)'
+      condition: eq(variables['arch'], 'arm')
+    - powershell: |
+        docker save -o $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar $(imageName)-win-$(arch)-$(release)
+        Compress-Archive $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar -DestinationPath $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar.zip
+        Remove-Item $(Build.StagingDirectory)/$(dockerRepositoryRoot).$(dockerRepositoryName).win.$(arch).$(release).tar 
+      displayName: 'export images'
+    - powershell: |
+        # Write your powershell commands here.
+        
+        Remove-Item -Force $(Build.StagingDirectory)/Dockerfile*
+        
+        # Use the environment variables input below to pass secret variables to this script.
+      displayName: 'clean up'
+    - task: PublishPipelineArtifact@0
+      displayName: 'Publish Pipeline Artifact'
+      inputs:
+        artifactName: 'win-${{parameters.arch}}-${{parameters.release}}'
+        targetPath: '$(Build.StagingDirectory)'
