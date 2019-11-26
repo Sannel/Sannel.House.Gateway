@@ -22,6 +22,12 @@ variables:
 name: $(date:yyyy.MM.dd)$(rev:.rr)
 
 jobs:
+- job: checkout
+  steps:
+  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
+    clean: clean  # if true, execute `execute git clean -ffdx && git reset --hard HEAD` before fetching
+    submodules: true  # set to 'true' for a single level of submodules or 'recursive' to get submodules of submodules; defaults to not checking out submodules
+
 - template: build/tasks/tasks/osx.yaml
 
 - template: build/tasks/tasks/linux-arm.yaml
