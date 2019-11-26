@@ -22,55 +22,49 @@ variables:
 name: $(date:yyyy.MM.dd)$(rev:.rr)
 
 jobs:
-- job: checkout
-  steps:
-  - checkout: self  # self represents the repo where the initial Pipelines YAML file was found
-    clean: clean  # if true, execute `execute git clean -ffdx && git reset --hard HEAD` before fetching
-    submodules: true  # set to 'true' for a single level of submodules or 'recursive' to get submodules of submodules; defaults to not checking out submodules
+- template: build/tasks/osx.yaml
 
-- template: build/tasks/tasks/osx.yaml
-
-- template: build/tasks/tasks/linux-arm.yaml
+- template: build/tasks/linux-arm.yaml
   parameters:
     arch: arm32
     archLong: arm32v7
     ridSuffix: arm
     qemuStatic: qemu-arm-static
 
-- template: build/tasks/tasks/linux-arm.yaml
+- template: build/tasks/linux-arm.yaml
   parameters:
     arch: arm64
     archLong: arm64v8
 
-- template: build/tasks/tasks/linux.yaml
+- template: build/tasks/linux.yaml
 
-- template: build/tasks/tasks/windows.yaml
+- template: build/tasks/windows.yaml
   parameters:
     pool:
       vmImage: 'windows-2019'
     release: '1803'
     arch: 'x64'
 
-- template: build/tasks/tasks/windows.yaml
+- template: build/tasks/windows.yaml
   parameters:
     pool:
       vmImage: 'windows-2019'
     release: '1809'
     arch: 'x64'
 
-- template: build/tasks/tasks/windows.yaml
+- template: build/tasks/windows.yaml
   parameters:
     pool: 'WindowsLatest'
     release: '1903'
     arch: 'x64'
 
-- template: build/tasks/tasks/windows.yaml
+- template: build/tasks/windows.yaml
   parameters:
     pool: 'WindowsLatest'
     release: '1909'
     arch: 'x64'
 
-- template: build/tasks/tasks/windows.yaml
+- template: build/tasks/windows.yaml
   parameters:
     pool:
       vmImage: 'windows-2019'
