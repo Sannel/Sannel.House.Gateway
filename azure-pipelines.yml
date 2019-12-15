@@ -3,7 +3,7 @@ trigger:
 - develop
 
 variables:
-  sdk_version: 3.0.x
+  sdk_version: 3.1.x
   dockerRepositoryRoot: sannel
   dockerRepositoryName: house.gateway
   dockerTagBase: $(Build.SourceBranchName)-$(Build.BuildId)
@@ -11,7 +11,7 @@ variables:
   projectFolder: Sannel.House.Gateway
   mainProjectPath: src/$(projectFolder)/$(projectFolder).csproj
   mainConfigPath: src/$(projectFolder)/app_config
-  tagVersion: 3.0
+  tagVersion: 3.1
   tagCodeName: buster
   hasTests: false
   disableLinux: false
