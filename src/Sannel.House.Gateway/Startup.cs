@@ -17,6 +17,7 @@ using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
+using Microsoft.IdentityModel.Logging;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Sannel.House.Web;
@@ -145,6 +146,7 @@ namespace Sannel.House.Gateway
 			app.UseHealthChecks("/health");
 			app.UseCors();
 
+			IdentityModelEventSource.ShowPII = true;
 			await app.UseOcelot();
 		}
 	}

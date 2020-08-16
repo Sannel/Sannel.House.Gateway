@@ -1,4 +1,5 @@
 ---
+https_port: 443
 Db:
   Provider: sqlite
   ConnectionString: Data Source=app_data/data.db
@@ -54,27 +55,45 @@ Db:
       - Type: EncodeSharedSecret
         Value: GatewayPassword
     Roles:
-    - Admin
-    - DeviceRead
     - DeviceCreate
-    - DeviceEdit
+    - DeviceRead
+    - DeviceWrite
     - LogEntryRead
     - LogEntryWrite
     Users:
       admin@asp.net:
         Password: "@Password1"
         Roles:
-        - Admin
+        - DeviceCreate
+        - DeviceWrite
+        - DeviceRead
+        - LogEntryRead
+        - LogEntryWrite
 Logging:
   LogLevel:
     Default: Debug
     System: Information
     Microsoft: Information
 IdentityServer:
-  Certificate:
-    Path: app_config/users.house.dev.local.pfx
-    Password: "@Password1"
+  PublicOrigin: http://users.localtest.me:8181
+  SigningCredentialType: ecdsa
+  ECDsa:
+    Key: MHcCAQEEIGm1KV4Mow5wxBT9ee2k8nYIqnvczyvRmXZSsUk+tiBGoAoGCCqGSM49AwEHoUQDQgAEqcdqV5OWwM25DKXgN8cq5W0wrhcM9ghg7vXwDUEAinKkOYiZRxeKQEdof+Gb1J4mzraA4wQbnavdqMTLRkh92A==
+    KeyId: hQPOjrNxT7u4oZrF7HdHD0tIL
+  X509:
+    Path: app_config/adamholt.us.pfx
+    Password: "D9sPIrxqwfQoW0XEw3SZ"
 Kestrel:
   Endpoints:
+    HTTPS:
+      Url: https://*:8433
+      Certificate:
+        Path: app_config/house.dev.local.pfx
+        Password: "@Password1"
     HTTP:
-      Url: http://*:8080
+      Url: http://*:8181
+  Certificate:
+#    Path: app_config/house.dev.local.pfx
+#    Password: "@Password1"
+    Path: app_config/adamholt.us.pfx
+    Password: "D9sPIrxqwfQoW0XEw3SZ"

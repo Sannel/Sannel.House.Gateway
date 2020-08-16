@@ -1,9 +1,9 @@
 {
-	"ReRoutes":[
+	"Routes":[
 		{
 			"DownstreamHostAndPorts": [
 				{
-					"Host": "devices.house.dev.local",
+					"Host": "devices.localtest.me",
 					"Port": 8080
 				}
 			],
@@ -20,7 +20,7 @@
 		{
 			"DownstreamHostAndPorts": [
 				{
-					"Host": "devices.house.dev.local",
+					"Host": "devices.localtest.me",
 					"Port": 8080
 				}
 			],
@@ -37,7 +37,7 @@
 		{
 			"DownstreamHostAndPorts": [
 				{
-					"Host": "devices.house.dev.local",
+					"Host": "devices.localtest.me",
 					"Port": 8080
 				}
 			],
@@ -54,7 +54,7 @@
 		{
 			"DownstreamHostAndPorts": [
 				{
-					"Host": "devices.house.dev.local",
+					"Host": "devices.localtest.me",
 					"Port": 8080
 				}
 			],

@@ -1,8 +1,8 @@
 ---
 GlobalConfiguration:
-  BaseUrl: http://house.dev.local
+  BaseUrl: http://gateway.localtest.me
 Authentication:
-  AuthorityUrl: http://house.dev.local
+  AuthorityUrl: http://users.localtest.me:8181
   Schema: houseapi
   ApiName: houseapi
   ApiSecret: GatewayPassword
@@ -16,11 +16,6 @@ Cors:
   - Any
   AllowWildCardDomains: false
   AllowCredentials: false
-
-
-Cert:
-  Install: false
-  Crt: app_config/Sannel Software - Dev - CA.crt
 Kestrel:
   Endpoints:
     HTTP:

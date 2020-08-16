@@ -2,37 +2,58 @@ version: '3.4'
 
 services:
   gateway:
-    image: ${DOCKER_REGISTRY}${ImageName}:${BuildType}-${SANNEL_VERSION}-${SANNEL_ARCH}
+    image: sannel/gateway
     build:
       context: .
       dockerfile: src/Sannel.House.Gateway/Dockerfile
     ports:
-      - "8080:8080"
-    networks:
-      housenet:
-        aliases:
-          - "gateway.house.dev.local"
+      - "8180:8080"
     depends_on:
       - users
       - devices
+    volumes:
+    - "./src/Sannel.House.Gateway/app_config/:/app/app_config/"
+    networks:
+      - housenet
 
   users:
-    image: ${DOCKER_REGISTRY}house.users:beta
+    image: sannel/house.users:beta
     ports:
-      - "8081:8080"
+      - "8181:8181"
+    hostname: "users.dev.local"
+    volumes:
+    - "./RunData/users/app_config/appsettings.yml:/app/app_config/appsettings.yml"
+    - "./RunData/users/app_data:/app/app_data/"
     networks: 
       housenet:
         aliases:
-          - "house.dev.local"
+          - "users.localtest.me"
+          - "users.dev.local"
 
   devices:
-    image: ${DOCKER_REGISTRY}house.devices:beta
-    networks:
-      housenet:
-        aliases:
-          - "devices.house.dev.local"
+    image: sannel/house.devices:beta
+    ports:
+    - "8281:8080"
+    volumes:
+    - "./RunData/users/app_data:/app/app_data/"
     depends_on:
       - users
+      - mqtt
+    networks: 
+      housenet:
+        aliases:
+          - "devices.localtest.me"
+          - "devices.dev.local"
+
+  mqtt:
+    image: eclipse-mosquitto
+    ports:
+    - "8883:1883"
+    networks: 
+      housenet:
+        aliases:
+          - "mqtt.localtest.me"
+          - "mqtt.dev.local"
 
 networks:
   housenet:

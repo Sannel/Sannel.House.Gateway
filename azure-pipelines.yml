@@ -22,8 +22,6 @@ variables:
 name: $(date:yyyy.MM.dd)$(rev:.rr)
 
 jobs:
-- template: build/tasks/osx.yaml
-
 - template: build/tasks/linux-arm.yaml
   parameters:
     arch: arm32
@@ -37,36 +35,3 @@ jobs:
     archLong: arm64v8
 
 - template: build/tasks/linux.yaml
-
-- template: build/tasks/windows.yaml
-  parameters:
-    pool:
-      vmImage: 'windows-2019'
-    release: '1803'
-    arch: 'x64'
-
-- template: build/tasks/windows.yaml
-  parameters:
-    pool:
-      vmImage: 'windows-2019'
-    release: '1809'
-    arch: 'x64'
-
-- template: build/tasks/windows.yaml
-  parameters:
-    pool: 'WindowsLatest'
-    release: '1903'
-    arch: 'x64'
-
-- template: build/tasks/windows.yaml
-  parameters:
-    pool: 'WindowsLatest'
-    release: '1909'
-    arch: 'x64'
-
-- template: build/tasks/windows.yaml
-  parameters:
-    pool:
-      vmImage: 'windows-2019'
-    release: '1809'
-    arch: 'arm'
