@@ -19,6 +19,7 @@
     <PackageReference Include="IdentityServer4.AccessTokenValidation" Version="3.0.1" />
     <PackageReference Include="Microsoft.Extensions.Diagnostics.HealthChecks" Version="3.1.7" />
     <PackageReference Include="Ocelot" Version="16.0.1" />
+    <PackageReference Include="Sannel.House.Base.Web" Version="0.9.455-beta" />
     <PackageReference Include="Sannel.House.Web" Version="1911.5.360-beta" />
     <PackageReference Include="NetEscapades.Configuration.Yaml" Version="2.0.1" />
     <PackageReference Include="System.Collections" Version="4.3.0" />

@@ -11,10 +11,13 @@
 
 using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
+using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
@@ -24,7 +27,11 @@ using Sannel.House.Web;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
+using System.IO;
 using System.Linq;
+using System.Text;
+using System.Text.Json;
+using System.Threading.Tasks;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace Sannel.House.Gateway
@@ -143,11 +150,12 @@ namespace Sannel.House.Gateway
 			}
 
 			//app.UseHttpsRedirection();
-			app.UseHealthChecks("/health");
+			app.UseHouseHealthChecks("/health");
 			app.UseCors();
 
 			IdentityModelEventSource.ShowPII = true;
 			await app.UseOcelot();
 		}
+
 	}
 }
