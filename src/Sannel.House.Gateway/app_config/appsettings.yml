@@ -7,6 +7,9 @@ Authentication:
   ApiName: houseapi
   ApiSecret: GatewayPassword
   DisableRequireHttpsMetadata: true
+HealthChecks: 
+- "http://users.localtest.me:8181/health?json"
+- "http://devices.localtest.me:8080/health?json"
 Cors:
   Origins:
   - Any

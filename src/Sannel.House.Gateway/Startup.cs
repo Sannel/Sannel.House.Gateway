@@ -23,7 +23,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
-using Sannel.House.Web;
+using Sannel.House.Base.Web;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
@@ -130,7 +130,13 @@ namespace Sannel.House.Gateway
 					}
 				});
 
-			services.AddHealthChecks();
+			var health = services.AddHealthChecks();
+
+			var uris = Configuration.GetSection("HealthChecks").Get<Uri[]>();
+			if(uris != null)
+			{
+				health.AddWebRequestsHealthChecks(uris);
+			}
 
 			services.AddOcelot();
 		}
