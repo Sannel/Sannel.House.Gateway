@@ -13,6 +13,7 @@ using IdentityServer4.AccessTokenValidation;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Server.Kestrel.Core;
 using Microsoft.Extensions.Configuration;
@@ -158,6 +159,8 @@ namespace Sannel.House.Gateway
 			//app.UseHttpsRedirection();
 			app.UseHouseHealthChecks("/health");
 			app.UseCors();
+
+			app.UseHouseRobotsTxt();
 
 			IdentityModelEventSource.ShowPII = true;
 			await app.UseOcelot();
