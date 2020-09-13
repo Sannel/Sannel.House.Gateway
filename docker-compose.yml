@@ -45,6 +45,19 @@ services:
           - "devices.localtest.me"
           - "devices.dev.local"
 
+  sensorlogging:
+    image: sannel/house.sensorlogging:beta
+    ports:
+    - "8282:8080"
+    volumes:
+    - "./RunData/sensorlogging/app_data:/app/app_data/"
+    depends_on:
+    - mqtt
+    networks:
+      housenet:
+        aliases:
+        - "sensorlogging.localtest.me"
+
   mqtt:
     image: eclipse-mosquitto
     ports:

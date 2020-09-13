@@ -10,6 +10,7 @@
    limitations under the License.*/
 
 using IdentityServer4.AccessTokenValidation;
+using IdentityServer4.Extensions;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Diagnostics.HealthChecks;
 using Microsoft.AspNetCore.Hosting;
@@ -22,14 +23,17 @@ using Microsoft.Extensions.Diagnostics.HealthChecks;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.IdentityModel.Logging;
+using Newtonsoft.Json.Linq;
 using Ocelot.DependencyInjection;
 using Ocelot.Middleware;
 using Sannel.House.Base.Web;
+using Sannel.House.Gateway.Models;
 using System;
 using System.Collections.Generic;
 using System.Globalization;
 using System.IO;
 using System.Linq;
+using System.Net.Http;
 using System.Text;
 using System.Text.Json;
 using System.Threading.Tasks;
@@ -157,10 +161,88 @@ namespace Sannel.House.Gateway
 			}
 
 			//app.UseHttpsRedirection();
-			app.UseHouseHealthChecks("/health");
 			app.UseCors();
+			app.UseRouting();
+
+			var endpoints = Configuration.GetSection("OpenApi:EndPoints").Get<EndpointInfo[]>();
+
+			if (Configuration.GetValue<bool>("OpenApi:EnableSwaggerUI"))
+			{
+				app.UseSwaggerUi3(i =>
+				{
+					i.DocumentPath = $"/swagger/{Configuration["OpenApi:VersionString"]}/swagger.json";
+				});
+			}
 
 			app.UseHouseRobotsTxt();
+
+			app.UseEndpoints(i =>
+			{
+				i.MapHouseHealthChecks("/health");
+
+				if (Configuration.GetValue<bool>("OpenApi:EnableSwaggerUI"))
+				{
+					var client = new HttpClient();
+					i.MapGet($"/swagger/{Configuration["OpenApi:VersionString"]}/swagger.json", async context =>
+					{
+						var root = new JObject
+						{
+							new JProperty("openapi", "3.0.0"),
+							new JProperty("info", new JObject(
+								new JProperty("title", "House Api"),
+								new JProperty("version", "1.0.0")
+							)),
+
+							new JProperty("servers", new JArray(
+								new JObject(
+									new JProperty("url", $"{context.Request.Scheme}://{context.Request.Host.Host}:{context.Request.Host.Port}")
+								)
+							))
+						};
+
+						var paths = new JObject();
+						root.Add(new JProperty("paths", paths));
+
+						var components = new JObject();
+						root.Add(new JProperty("components", components));
+
+						var schemas = new JObject();
+						components.Add(new JProperty("schemas", schemas));
+
+						foreach(var endpoint in endpoints)
+						{
+							var response = await client.GetAsync(endpoint.Path);
+							var content = await response.Content.ReadAsStringAsync();
+
+							var top = JObject.Parse(content);
+							var childPaths = top.SelectToken("paths");
+							
+							foreach(JProperty child in childPaths.Children())
+							{
+								var path = child.Name;
+
+								foreach(var replacement in endpoint.Rewrite)
+								{
+									path = path.Replace(replacement.OldPath, replacement.NewPath);
+								}
+								paths.Add(new JProperty(path, child.Value));
+							}
+
+							var childSchemas = top.SelectToken("components.schemas");
+
+							foreach(JProperty schema in childSchemas)
+							{
+								if (schemas.SelectToken(schema.Name) is null)
+								{
+									schemas.Add(schema);
+								}
+							}
+						}
+
+						await context.Response.WriteJsonAsync(root.ToString());
+					});
+				}
+			});
 
 			IdentityModelEventSource.ShowPII = true;
 			await app.UseOcelot();

@@ -1,6 +1,20 @@
 ---
 GlobalConfiguration:
   BaseUrl: http://gateway.localtest.me
+OpenApi:
+  EnableSwaggerUI: true
+  VersionString: v1
+  EndPoints:
+  - name: devices
+    path: "http://devices.localtest.me:8080/swagger/v1/swagger.json"
+    rewrite:
+    - oldPath: /api
+      newPath: /api/v1
+  - name: sensorlogging
+    path: "http://sensorlogging.localtest.me:8080/swagger/v1/swagger.json"
+    rewrite:
+    - oldPath: /api
+      newPath: /api/v1
 Authentication:
   AuthorityUrl: http://users.localtest.me:8181
   Schema: houseapi
