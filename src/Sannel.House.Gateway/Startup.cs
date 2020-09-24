@@ -174,11 +174,10 @@ namespace Sannel.House.Gateway
 				});
 			}
 
-			app.UseHouseRobotsTxt();
-
 			app.UseEndpoints(i =>
 			{
 				i.MapHouseHealthChecks("/health");
+				i.MapHouseRobotsTxt();
 
 				if (Configuration.GetValue<bool>("OpenApi:EnableSwaggerUI"))
 				{
