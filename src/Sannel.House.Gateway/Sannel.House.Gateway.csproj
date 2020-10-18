@@ -1,18 +1,18 @@
 <Project Sdk="Microsoft.NET.Sdk.Web">
 
-  <PropertyGroup>
-    <TargetFramework>netcoreapp3.1</TargetFramework>
-    <DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
-    <UserSecretsId>e2841354-05dc-47bc-9fb4-5a324533efcc</UserSecretsId>
-  </PropertyGroup>
+	<PropertyGroup>
+		<TargetFramework>net5.0</TargetFramework>
+		<DockerComposeProjectPath>..\..\docker-compose.dcproj</DockerComposeProjectPath>
+		<UserSecretsId>e2841354-05dc-47bc-9fb4-5a324533efcc</UserSecretsId>
+	</PropertyGroup>
 
-  <ItemGroup>
-    <None Remove="app_config\appsettings.yml" />
-  </ItemGroup>
+	<ItemGroup>
+		<None Remove="app_config\appsettings.yml" />
+	</ItemGroup>
 
-  <ItemGroup>
-    <Content Include="app_config\appsettings.yml" />
-  </ItemGroup>
+	<ItemGroup>
+		<Content Include="app_config\appsettings.yml" />
+	</ItemGroup>
 
 	<ItemGroup>
 		<PackageReference Include="IdentityServer4" Version="4.1.1" />
