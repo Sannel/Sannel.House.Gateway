@@ -9,7 +9,7 @@ pr:
 
 variables:
   sdk_version: 5.0.x
-  sdk_support_preview: true
+  sdk_support_preview: false
   dockerRepositoryRoot: sannel
   dockerTagBase: $(Build.SourceBranchName)-$(Build.BuildId)
   mainImageName: house.gateway
